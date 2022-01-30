@@ -5,6 +5,10 @@
 SDL_Window* gWindow = nullptr;
 SDL_Renderer *gRenderer = nullptr;
 
+inline uint8_t RGB5toRGB16(uint8_t v) {
+    return (uint8_t)(lround(((float)(v) / (31.0f / 255.0f))));
+}
+
 long GetFileSize(const std::string& filename) {
     struct stat stat_buf{};
     int rc = stat(filename.c_str(), &stat_buf);
@@ -47,78 +51,84 @@ void close() {
     SDL_Quit();
 }
 
-uint8_t * indexed4ToNormal24Bit(pxInByte_2* pixels_indexed, SDL_Color* pal, int w, int h, long fsize) {
+uint8_t * indexed4ToNormal32Bit(pxInByte_2* pixels_indexed, SDL_Color* pal, int w, int h, long fsize) {
 	// Since SDL doesn't have the built-in capabality to work with RGB4/RGB16
     // indexed images, here we manually loop over the read pixel data and 
     // map the numbers in the texture to the provided palette to build a normal
     // RGB24 surface.
-    int bypp = 3; 		 // bytes per pixel
+    int bypp = 4; 		 // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
     int pipb = 4;        // pixels per byte
 
-    size_t pixels_24bit_size = w * h * bypp * sizeof(uint8_t);
-    auto* pixels_24bit = static_cast<uint8_t *>(malloc(pixels_24bit_size));
-    memset(pixels_24bit, 0, pixels_24bit_size);
+    size_t pixels_32bit_size = w * h * bypp * sizeof(uint8_t);
+    auto* pixels_32bit = static_cast<uint8_t *>(malloc(pixels_32bit_size));
+    memset(pixels_32bit, 0, pixels_32bit_size);
 
     for (int u = 0; u<fsize; u++) {
     	int x=0; // index of the pixel inside pixels_indexed[u]
     	unsigned int offset = ( u * bypp * pipb ) + (x * bypp);
 
-    	pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel1].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel1].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel1].b;
+    	pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-    	pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel2].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel2].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel2].b;
+        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel3].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel3].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel3].b;
+        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel4].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel4].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel4].b;
+        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].a);
 	}
 	free(pixels_indexed);
-    return pixels_24bit;
+    return pixels_32bit;
 }
 
-uint8_t * indexed16ToNormal24Bit(pxInByte_4* pixels_indexed, SDL_Color* pal, int w, int h, long fsize) {
+uint8_t * indexed16ToNormal32Bit(pxInByte_4* pixels_indexed, SDL_Color* pal, int w, int h, long fsize) {
     // Since SDL doesn't have the built-in capabality to work with RGB4/RGB16
     // indexed images, here we manually loop over the read pixel data and
     // map the numbers in the texture to the provided palette to build a normal
     // RGB24 surface.
-    int bypp = 3; 		 // bytes per pixel
+    int bypp = 4; 		 // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
     int pipb = 2;        // pixels per byte
 
-    size_t pixels_24bit_size = w * h * bypp * sizeof(uint8_t);
-    auto* pixels_24bit = static_cast<uint8_t *>(malloc(pixels_24bit_size));
-    memset(pixels_24bit, 0, pixels_24bit_size);
+    size_t pixels_32bit_size = w * h * bypp * sizeof(uint8_t);
+    auto* pixels_32bit = static_cast<uint8_t *>(malloc(pixels_32bit_size));
+    memset(pixels_32bit, 0, pixels_32bit_size);
 
     for (int u = 0; u<fsize; u++) {
         int x=0; // index of the pixel inside pixels_indexed[u]
         unsigned int offset = ( u * bypp * pipb ) + (x * bypp);
 
-        pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel1].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel1].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel1].b;
+        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_24bit[ offset + 0 ] = pal[pixels_indexed[u].pixel2].r;
-        pixels_24bit[ offset + 1 ] = pal[pixels_indexed[u].pixel2].g;
-        pixels_24bit[ offset + 2 ] = pal[pixels_indexed[u].pixel2].b;
+        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].a);
     }
     free(pixels_indexed);
-    return pixels_24bit;
+    return pixels_32bit;
 }
 
 pxInByte_2* readIndexed4(const std::string& path) {
@@ -128,7 +138,7 @@ pxInByte_2* readIndexed4(const std::string& path) {
 
     auto * buffer = new uint8_t[BUFFERSIZE];
 
-    auto *pixels_indexed = static_cast<pxInByte_2 *>(malloc(fsize*4));
+    auto *pixels_indexed = static_cast<pxInByte_2 *>(malloc(fsize*sizeof(pxInByte_2)));
 
     int i = 0;
     while (true) {
@@ -159,7 +169,7 @@ pxInByte_4* readIndexed16(const std::string& path) {
 
     auto * buffer = new uint8_t[BUFFERSIZE];
 
-    auto *pixels_indexed = static_cast<pxInByte_4 *>(malloc(fsize*4));
+    auto *pixels_indexed = static_cast<pxInByte_4 *>(malloc(fsize*sizeof(pxInByte_4)));
 
     int i = 0;
     while (true) {
@@ -208,49 +218,55 @@ SDL_Texture* load(std::string path, SDL_Color* pal, size_t pals, int custom_w) {
     	w = h = sqrt(countpixels);
     }
 
-    uint8_t * pixels_24bit;
+    uint8_t * pixels_32bit;
     if (pixelsperbyte == 4) {
         pxInByte_2* indexed = readIndexed4(path);
-        pixels_24bit = indexed4ToNormal24Bit(indexed, pal, w, h, fsize);
+        if (indexed != nullptr) {
+            pixels_32bit = indexed4ToNormal32Bit(indexed, pal, w, h, fsize);
+        } else {
+            fprintf(stderr, "Indexed pixel data is null. Terminating\n");
+            return nullptr;
+        }
     } else {
         pxInByte_4* indexed = readIndexed16(path);
-        pixels_24bit = indexed16ToNormal24Bit(indexed, pal, w, h, fsize);
+        if (indexed != nullptr) {
+            pixels_32bit = indexed16ToNormal32Bit(indexed, pal, w, h, fsize);
+        } else {
+            fprintf(stderr, "Indexed pixel data is null. Terminating\n");
+            return nullptr;
+        }
     }
 
-    int bypp = 3; 		 // bytes per pixel
+    int bypp = 4; 		 // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
 
     uint32_t Rmask, Gmask, Bmask, Amask;
-    SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGB24, &bipp, &Rmask, &Gmask, &Bmask, &Amask);
+    SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGBA32, &bipp, &Rmask, &Gmask, &Bmask, &Amask);
     SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
-								                    pixels_24bit,
-								                    w, h,
-								                    bipp, bypp*w,
-								                    Rmask, Gmask, Bmask, Amask
-            									   );
+            pixels_32bit,
+            w, h,
+            bipp, bypp*w,
+            Rmask, Gmask, Bmask, Amask
+    );
 
     if (surface == nullptr) {
         fprintf(stderr, "Failed to create surface: %s\n", SDL_GetError());
         return nullptr;
     }
 
-    SDL_Surface* optimizedSurface = nullptr;
-
     uint32_t pf = SDL_GetWindowPixelFormat(gWindow);
-    optimizedSurface = SDL_ConvertSurface( surface, SDL_AllocFormat(pf), 0 );
-    if( optimizedSurface == nullptr )
-    {
+    SDL_Surface* optimizedSurface = SDL_ConvertSurface( surface, SDL_AllocFormat(pf), 0 );
+    if( optimizedSurface == nullptr ) {
         printf( "Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-        SDL_FreeSurface( surface );
+        SDL_FreeSurface(surface);
         return nullptr;
     }
 
-    SDL_FreeSurface( surface );
-    free(pixels_24bit);
+    SDL_FreeSurface(surface);
+    free(pixels_32bit);
 
     newTexture = SDL_CreateTextureFromSurface( gRenderer, optimizedSurface );
-    if( newTexture == nullptr )
-    {
+    if (newTexture == nullptr) {
         fprintf( stderr, "Unable to create texture for bg! SDL Error: %s\n", SDL_GetError() );
         SDL_FreeSurface( optimizedSurface );
         return nullptr;
