@@ -5,7 +5,7 @@
 SDL_Window* gWindow = nullptr;
 SDL_Renderer *gRenderer = nullptr;
 
-inline uint8_t RGB5toRGB16(uint8_t v) {
+inline uint8_t RGB5toRGB8(uint8_t v) {
     return (uint8_t)(lround(((float)(v) / (31.0f / 255.0f))));
 }
 
@@ -22,8 +22,8 @@ bool init() {
     }
 
     gWindow = SDL_CreateWindow("osuds-res-conv", SDL_WINDOWPOS_UNDEFINED,
-    						   SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-    						   SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+                               SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+                               SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (gWindow == nullptr) {
         fprintf(stderr, "Window failed to create: %s\n", SDL_GetError());
         return false;
@@ -52,11 +52,11 @@ void close() {
 }
 
 uint8_t * indexed4ToNormal32Bit(pxInByte_2* pixels_indexed, SDL_Color* pal, int w, int h, long fsize) {
-	// Since SDL doesn't have the built-in capabality to work with RGB4/RGB16
+    // Since SDL doesn't have the built-in capabality to work with RGB4/RGB16
     // indexed images, here we manually loop over the read pixel data and 
     // map the numbers in the texture to the provided palette to build a normal
     // RGB24 surface.
-    int bypp = 4; 		 // bytes per pixel
+    int bypp = 4;        // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
     int pipb = 4;        // pixels per byte
 
@@ -65,36 +65,36 @@ uint8_t * indexed4ToNormal32Bit(pxInByte_2* pixels_indexed, SDL_Color* pal, int 
     memset(pixels_32bit, 0, pixels_32bit_size);
 
     for (int u = 0; u<fsize; u++) {
-    	int x=0; // index of the pixel inside pixels_indexed[u]
-    	unsigned int offset = ( u * bypp * pipb ) + (x * bypp);
+        int x=0; // index of the pixel inside pixels_indexed[u]
+        unsigned int offset = ( u * bypp * pipb ) + (x * bypp);
 
-    	pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].a);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].a);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel3].a);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel3].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel3].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel3].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel3].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel4].a);
-	}
-	free(pixels_indexed);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel4].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel4].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel4].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel4].a);
+    }
+    free(pixels_indexed);
     return pixels_32bit;
 }
 
@@ -103,7 +103,7 @@ uint8_t * indexed16ToNormal32Bit(pxInByte_4* pixels_indexed, SDL_Color* pal, int
     // indexed images, here we manually loop over the read pixel data and
     // map the numbers in the texture to the provided palette to build a normal
     // RGB24 surface.
-    int bypp = 4; 		 // bytes per pixel
+    int bypp = 4;        // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
     int pipb = 2;        // pixels per byte
 
@@ -115,17 +115,17 @@ uint8_t * indexed16ToNormal32Bit(pxInByte_4* pixels_indexed, SDL_Color* pal, int
         int x=0; // index of the pixel inside pixels_indexed[u]
         unsigned int offset = ( u * bypp * pipb ) + (x * bypp);
 
-        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel1].a);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel1].a);
         x++;
 
         offset = ( u * bypp * pipb ) + (x * bypp);
-        pixels_32bit[ offset + 0 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].r);
-        pixels_32bit[ offset + 1 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].g);
-        pixels_32bit[ offset + 2 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].b);
-        pixels_32bit[ offset + 3 ] = RGB5toRGB16(pal[pixels_indexed[u].pixel2].a);
+        pixels_32bit[ offset + 0 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].r);
+        pixels_32bit[ offset + 1 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].g);
+        pixels_32bit[ offset + 2 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].b);
+        pixels_32bit[ offset + 3 ] = RGB5toRGB8(pal[pixels_indexed[u].pixel2].a);
     }
     free(pixels_indexed);
     return pixels_32bit;
@@ -200,22 +200,22 @@ SDL_Texture* load(std::string path, SDL_Color* pal, size_t pals, int custom_w) {
     SDL_Texture* newTexture = nullptr;
 
     switch(pals) {
-    	case 4:
-    		pixelsperbyte = 4; break; // 2 bits per pixel
-    	case 16:
-    		pixelsperbyte = 2; break; // 4 bits per pixel
-		default:
-			fprintf(stderr, "Can't load palette of length %zu\n", pals);
-			return nullptr;
+        case 4:
+            pixelsperbyte = 4; break; // 2 bits per pixel
+        case 16:
+            pixelsperbyte = 2; break; // 4 bits per pixel
+        default:
+            fprintf(stderr, "Can't load palette of length %zu\n", pals);
+            return nullptr;
     }
 
     countpixels = fsize * pixelsperbyte;
 
     if (custom_w > 0) {
-    	w = custom_w;
-    	h = countpixels / w;
+        w = custom_w;
+        h = countpixels / w;
     } else {
-    	w = h = sqrt(countpixels);
+        w = h = sqrt(countpixels);
     }
 
     uint8_t * pixels_32bit;
@@ -237,7 +237,7 @@ SDL_Texture* load(std::string path, SDL_Color* pal, size_t pals, int custom_w) {
         }
     }
 
-    int bypp = 4; 		 // bytes per pixel
+    int bypp = 4;        // bytes per pixel
     int bipp = bypp * 8; // bits per pixel
 
     uint32_t Rmask, Gmask, Bmask, Amask;
@@ -359,12 +359,12 @@ void save(SDL_Texture *tex, const char *filename) {
 }
 
 int main(int argc, char *argv[]) {
-	if (argc == 1) {
-		printf("osuds-res-conv. usage:\n");
-		printf("osuds-res-conv [path-to-bin-texture] [output-file.bmp] ");
-		printf("[palette-id(0-8)] {custom-width(optional)}\n");
-		return 0;
-	}
+    if (argc == 1) {
+        printf("osuds-res-conv. usage:\n");
+        printf("osuds-res-conv [path-to-bin-texture] [output-file.bmp] ");
+        printf("[palette-id(0-8)] {custom-width(optional)}\n");
+        return 0;
+    }
 
     if( !init() ) {
         fprintf(stderr, "Failed to initialize!\n");
@@ -376,51 +376,51 @@ int main(int argc, char *argv[]) {
     int custom_width;
 
     switch (atoi(argv[3])) {
-    	case 0:
-    		pal = palette0;
-    		pal_size = sizeof(palette0) / sizeof(palette0[0]);
-    		break;
-    	case 1:
-    		pal = palette1;
-    		pal_size = sizeof(palette1) / sizeof(palette1[0]);
-    		break;
-    	case 2:
-    		pal = palette2;
-    		pal_size = sizeof(palette2) / sizeof(palette2[0]);
-    		break;
-    	case 3:
-    		pal = palette3;
-    		pal_size = sizeof(palette3) / sizeof(palette3[0]);
-    		break;
-    	case 4:
-    		pal = palette4;
-    		pal_size = sizeof(palette4) / sizeof(palette4[0]);
-    		break;
-    	case 5:
-    		pal = palette5;
-    		pal_size = sizeof(palette5) / sizeof(palette5[0]);
-    		break;
-    	case 6:
-    		pal = palette6;
-    		pal_size = sizeof(palette6) / sizeof(palette6[0]);
-    		break;
-    	case 7:
-    		pal = palette7;
-    		pal_size = sizeof(palette7) / sizeof(palette7[0]);
-    		break;
-    	case 8:
-    		pal = palette8;
-    		pal_size = sizeof(palette8) / sizeof(palette8[0]);
-    		break;
-    	default:
-    		fprintf(stderr, "Unknown palette id %i\n", atoi(argv[3]));
-    		close(); return 1;
+        case 0:
+            pal = palette0;
+            pal_size = sizeof(palette0) / sizeof(palette0[0]);
+            break;
+        case 1:
+            pal = palette1;
+            pal_size = sizeof(palette1) / sizeof(palette1[0]);
+            break;
+        case 2:
+            pal = palette2;
+            pal_size = sizeof(palette2) / sizeof(palette2[0]);
+            break;
+        case 3:
+            pal = palette3;
+            pal_size = sizeof(palette3) / sizeof(palette3[0]);
+            break;
+        case 4:
+            pal = palette4;
+            pal_size = sizeof(palette4) / sizeof(palette4[0]);
+            break;
+        case 5:
+            pal = palette5;
+            pal_size = sizeof(palette5) / sizeof(palette5[0]);
+            break;
+        case 6:
+            pal = palette6;
+            pal_size = sizeof(palette6) / sizeof(palette6[0]);
+            break;
+        case 7:
+            pal = palette7;
+            pal_size = sizeof(palette7) / sizeof(palette7[0]);
+            break;
+        case 8:
+            pal = palette8;
+            pal_size = sizeof(palette8) / sizeof(palette8[0]);
+            break;
+        default:
+            fprintf(stderr, "Unknown palette id %i\n", atoi(argv[3]));
+            close(); return 1;
     }    
 
     if (argc >= 5) {
-    	custom_width = atoi(argv[4]);
+        custom_width = atoi(argv[4]);
     } else {
-    	custom_width = 0;
+        custom_width = 0;
     }
 
     SDL_Texture* imp = load(argv[1], pal, pal_size, custom_width);
@@ -428,5 +428,5 @@ int main(int argc, char *argv[]) {
     SDL_DestroyTexture(imp);
 
     close();
-	return 0;
+    return 0;
 }
